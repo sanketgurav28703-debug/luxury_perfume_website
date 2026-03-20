@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="banner" style="background:#0c2136; padding:80px 20px; text-align:center; color:#fff;">
+    <h1 style="font-family:'Cormorant Garamond', serif; font-size:3.5em; margin-bottom:15px; font-weight:600;">Aroma Rewards</h1>
+    <p style="font-size:1.1em; max-width:600px; margin:0 auto; font-weight:300; opacity:0.9;">Elegance should be rewarding. Join our exclusive rewards program to earn points, unlock VIP tiers, and enjoy early access to our limited-edition attars and seasonal perfumes.</p>
+</section>
+
+<section class="container" style="padding:80px 20px; text-align:center;">
+    <h2 style="font-family:'Cormorant Garamond', serif; font-size:2.5em; color:#111; margin-bottom:50px;">How It Works</h2>
+    <div style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:280px; max-width:350px; background:#fff; padding:50px 30px; box-shadow:0 10px 40px rgba(0,0,0,0.04); border-radius:12px; transition:transform 0.3s;">
+            <div style="font-size:2.5em; margin-bottom:20px;">✧</div>
+            <h3 style="color:#ff7b89; font-size:1.3em; margin-bottom:15px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">1. Shop</h3>
+            <p style="color:#555; font-size:0.95em; line-height:1.6;">Earn 1 point for every ₹100 spent on any of our luxury fragrances, attars, or home collections.</p>
+        </div>
+        <div style="flex:1; min-width:280px; max-width:350px; background:#fff; padding:50px 30px; box-shadow:0 10px 40px rgba(0,0,0,0.04); border-radius:12px; transition:transform 0.3s; transform:translateY(-15px);">
+            <div style="font-size:2.5em; margin-bottom:20px;">✦</div>
+            <h3 style="color:#ff7b89; font-size:1.3em; margin-bottom:15px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">2. Elevate</h3>
+            <p style="color:#555; font-size:0.95em; line-height:1.6;">Unlock Silver, Gold, and Platinum VIP tiers. Higher tiers earn points faster and include free express shipping globally.</p>
+        </div>
+        <div style="flex:1; min-width:280px; max-width:350px; background:#fff; padding:50px 30px; box-shadow:0 10px 40px rgba(0,0,0,0.04); border-radius:12px; transition:transform 0.3s;">
+            <div style="font-size:2.5em; margin-bottom:20px;">⋆</div>
+            <h3 style="color:#ff7b89; font-size:1.3em; margin-bottom:15px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">3. Redeem</h3>
+            <p style="color:#555; font-size:0.95em; line-height:1.6;">Redeem your points for exclusive discounts, beautifully-crafted free gifting boxes, and full-sized reserve bottles.</p>
+        </div>
+    </div>
+    
+    <div style="margin-top:80px;">
+        <button onclick="openModal('signupModal')" style="background:#0c2136; color:#fff; border:none; padding:18px 50px; font-size:1.1em; font-family:'Poppins',sans-serif; letter-spacing:1px; text-transform:uppercase; border-radius:4px; cursor:pointer; transition:background 0.3s;">Join Now for Free</button>
+    </div>
+</section>
+{% endblock %}

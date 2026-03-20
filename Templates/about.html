@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="about-section">
+  <div class="about-container">
+    <img src="{{ url_for('static', filename='images/about-perfume.jpg') }}" alt="About Aroma Essence" class="about-img">
+    <div class="about-text">
+      <h1>About Aroma Essence</h1>
+      <p>At Aroma Essence, we believe that every scent tells a story.</p>
+      <p>Our mission is to craft luxurious fragrances that captivate your senses and reflect your unique personality.</p>
+      <p>Each perfume in our collection is made with the finest ingredients, blending art and science to bring you unforgettable aromas.</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

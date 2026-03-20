@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="blog-post-header" style="background: url('{{ url_for('static', filename=post.image) }}') center/cover no-repeat; padding: 120px 20px; text-align: center; position: relative;">
+    <div style="position: absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5);"></div>
+    <div style="position: relative; z-index: 2;">
+        <span style="font-size:0.85em; text-transform:uppercase; letter-spacing:2px; color:#ff7b89; font-weight:600;">{{ post.category }}</span>
+        <h1 style="font-family:'Cormorant Garamond',serif; font-size:4em; margin: 15px 0; color:#fff;">{{ post.title }}</h1>
+    </div>
+</section>
+
+<section class="blog-post-content" style="padding: 80px 20px; max-width: 800px; margin: 0 auto; line-height: 1.8; font-size: 1.1em; color: #444;">
+    <div style="margin-bottom: 40px;">
+        <a href="{{ url_for('blog') }}" style="color: #ff7b89; text-decoration: none; font-weight: 600; font-size: 0.9em;">&larr; Back to Journal</a>
+    </div>
+    
+    <div class="post-body">
+        {{ post.content | safe }}
+    </div>
+</section>
+
+{% endblock %}

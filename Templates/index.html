@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-tagline">Luxury Fragrances</p>
+    <h1>Discover Your Signature Scent</h1>
+    <p>Over 10 handcrafted perfumes that define your style, mood, and moment.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('shop') }}" class="btn">Shop Now</a>
+      <a href="{{ url_for('about') }}" class="btn btn-outline">Our Story</a>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Fragrances -->
+<section class="products-section">
+  <div class="container">
+    <h2 class="section-title">Popular Fragrances</h2>
+    <p class="section-subtitle">Our bestsellers, loved by thousands</p>
+    <div class="product-grid">
+      {% for product in products %}
+      <div class="product">
+        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-img-link">
+          <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        </a>
+        <div class="product-info">
+          <span class="badge badge-category small">{{ product.category }}</span>
+          <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
+          <p>{{ product.description[:70] }}…</p>
+          <span class="price">₹{{ product.price }}</span>
+          <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="view-all-wrap">
+      <a href="{{ url_for('shop') }}" class="btn btn-outline">View All Perfumes →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Personalised Recommendations (only for logged-in users) -->
+{% if session.get('user_id') and recommendations %}
+<section class="recommendations-section home-reco">
+  <div class="container">
+    <h2 class="section-title">Recommended For You</h2>
+    <p class="section-subtitle">Based on your recent browsing — curated just for {{ session.get('user_name') }}</p>
+    <div class="product-grid reco-grid">
+      {% for rec in recommendations %}
+      <div class="product reco-card">
+        <a href="{{ url_for('product_detail', product_id=rec.id) }}" class="product-img-link">
+          <img src="{{ url_for('static', filename='images/' + rec.image) }}" alt="{{ rec.name }}">
+        </a>
+        <div class="product-info">
+          <span class="badge badge-category small">{{ rec.category }}</span>
+          <h3><a href="{{ url_for('product_detail', product_id=rec.id) }}">{{ rec.name }}</a></h3>
+          <p>{{ rec.description[:70] }}…</p>
+          <span class="price">₹{{ rec.price }}</span>
+          <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ rec.id }}">
+            <button type="submit" class="btn">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Features Strip -->
+<section class="features-strip">
+  <div class="container features-grid">
+    <div class="feature-item">
+      <h4>Free Shipping</h4>
+      <p>On orders above ₹2000</p>
+    </div>
+    <div class="feature-item">
+      <h4>100% Authentic</h4>
+      <p>Genuine luxury fragrances</p>
+    </div>
+    <div class="feature-item">
+      <h4>Easy Returns</h4>
+      <p>7-day hassle-free returns</p>
+    </div>
+    <div class="feature-item">
+      <h4>Secure Payment</h4>
+      <p>Encrypted & safe checkout</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

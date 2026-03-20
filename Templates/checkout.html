@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Added some script to ensure drawer doesnt cover this page if they somehow refresh -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        closeCartDrawer && closeCartDrawer();
+    });
+</script>
+
+<div style="background-color: #f8f6f0; min-height: 100vh; padding: 60px 20px;">
+  <div class="checkout-wrapper">
+    
+    <!-- LEFT COLUMN: Billing Details -->
+    <div class="checkout-form-col">
+      <h1 class="checkout-title">Express Checkout</h1>
+      <p class="checkout-subtitle">Secure your premium fragrances. You're almost done.</p>
+
+      <form method="POST" action="{{ url_for('checkout') }}" id="checkoutForm">
+        <div class="chk-section">
+          <h3>1. Contact Information</h3>
+          <input type="email" placeholder="Email Address" required class="chk-input" value="{{ session.get('user_email', '') }}">
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.9em; margin-top:10px; color:#555;">
+            <input type="checkbox" checked> Email me with news and offers
+          </label>
+        </div>
+
+        <div class="chk-section">
+          <h3>2. Shipping Address</h3>
+          <div class="chk-row">
+            <input type="text" placeholder="First Name" required class="chk-input">
+            <input type="text" placeholder="Last Name" required class="chk-input">
+          </div>
+          <input type="text" placeholder="Address" required class="chk-input">
+          <input type="text" placeholder="Apartment, suite, etc. (optional)" class="chk-input">
+          <div class="chk-row">
+            <input type="text" placeholder="City" required class="chk-input">
+            <select class="chk-input" required>
+              <option value="" disabled selected>State</option>
+              <option value="MH">Maharashtra</option>
+              <option value="DL">Delhi</option>
+              <option value="KA">Karnataka</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" placeholder="PIN Code" required class="chk-input">
+          </div>
+          <input type="tel" placeholder="Phone" required class="chk-input">
+        </div>
+
+        <div class="chk-section">
+          <h3>3. Payment Method</h3>
+          <div class="payment-options">
+            <label class="pay-option">
+              <input type="radio" name="payment" value="card" checked>
+              <strong>Credit / Debit Card</strong>
+              <div class="pay-details">
+                <input type="text" placeholder="Card Number" class="chk-input mt-2">
+                <div class="chk-row">
+                    <input type="text" placeholder="MM/YY" class="chk-input">
+                    <input type="text" placeholder="CVV" class="chk-input">
+                </div>
+              </div>
+            </label>
+            <label class="pay-option">
+              <input type="radio" name="payment" value="upi">
+              <strong>UPI / PayTM</strong>
+            </label>
+            <label class="pay-option" style="border-bottom:none;">
+              <input type="radio" name="payment" value="cod">
+              <strong>Cash on Delivery</strong>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary checkout-btn-large">Pay Now ₹{{ total }}</button>
+      </form>
+    </div>
+
+    <!-- RIGHT COLUMN: Order Summary -->
+    <div class="checkout-summary-col">
+      <h3>Order Summary</h3>
+      
+      <div class="chk-items-list">
+        {% for item in cart_items %}
+          <div class="chk-item">
+            <div class="chk-img-wrapper">
+                <img src="{{ url_for('static', filename='images/' + item.product.image) }}" alt="{{ item.product.name }}">
+                <span class="chk-qty-badge">{{ item.quantity }}</span>
+            </div>
+            <div class="chk-item-info">
+                <h4>{{ item.product.name }}</h4>
+                <p>{{ item.product.category }}</p>
+            </div>
+            <div class="chk-item-price">
+                ₹{{ item.product.price * item.quantity }}
+            </div>
+          </div>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endfor %}
+      </div>
+
+      <div class="chk-discount">
+        <input type="text" id="coupon-input" placeholder="Discount code or gift card">
+        <button type="button" id="apply-coupon-btn">Apply</button>
+      </div>
+      <div id="coupon-msg" style="padding: 0 0 10px 0; font-size:0.9em; display:none;"></div>
+
+      <div class="chk-totals">
+        <div class="chk-totals-row">
+            <span>Subtotal</span>
+            <span>₹{{ total }}</span>
+        </div>
+        <div class="chk-totals-row">
+            <span>Shipping</span>
+            <span>{% if total > 1000 %}Free{% else %}₹100{% endif %}</span>
+        </div>
+        <div class="chk-totals-row chk-grand-total">
+            <span>Total</span>
+            <span><span style="font-size:0.6em; color:#999; margin-right:5px;">INR</span>₹{% if total > 1000 %}{{ total }}{% else %}{{ total + 100 }}{% endif %}</span>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- .checkout-wrapper -->
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('apply-coupon-btn').addEventListener('click', async () => {
+    const code = document.getElementById('coupon-input').value.trim();
+    const msgDiv = document.getElementById('coupon-msg');
+    const btn = document.getElementById('apply-coupon-btn');
+
+    if (!code) {
+        msgDiv.style.display = 'block';
+        msgDiv.style.color = '#cc0000';
+        msgDiv.textContent = 'Please enter a coupon code.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Applying...';
+
+    try {
+        const res = await fetch('/api/apply-coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = '#22863a';
+            msgDiv.innerHTML = `✓ ${data.message} You save <strong>₹${data.discount}</strong>!`;
+
+            // Update all total displays on page
+            document.querySelectorAll('.chk-grand-total span:last-child').forEach(el => {
+                el.innerHTML = `<span style="font-size:0.6em; color:#999; margin-right:5px;">INR</span>₹${data.new_total.toFixed(2)}`;
+            });
+            // Update Pay Now button
+            const payBtn = document.querySelector('.checkout-btn-large');
+            if (payBtn) payBtn.textContent = `Pay Now ₹${data.new_total.toFixed(2)}`;
+
+            btn.textContent = 'Applied ✓';
+            btn.style.background = '#22863a';
+            btn.style.color = '#fff';
+        } else {
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = '#cc0000';
+            msgDiv.textContent = data.error || 'Invalid coupon code.';
+            btn.disabled = false;
+            btn.textContent = 'Apply';
+        }
+    } catch (e) {
+        msgDiv.style.display = 'block';
+        msgDiv.style.color = '#cc0000';
+        msgDiv.textContent = 'Something went wrong. Please try again.';
+        btn.disabled = false;
+        btn.textContent = 'Apply';
+    }
+});
+</script>
+{% endblock %}

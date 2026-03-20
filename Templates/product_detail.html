@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="product-detail-section">
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="{{ url_for('home') }}">Home</a> &rsaquo;
+      <a href="{{ url_for('shop') }}">Shop</a> &rsaquo;
+      <span>{{ product.name }}</span>
+    </nav>
+
+    <!-- Product Card -->
+    <div class="product-detail-card">
+      <div class="product-detail-image">
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+      </div>
+
+      <div class="product-detail-info">
+        <div class="product-badges">
+          <span class="badge badge-category">{{ product.category }}</span>
+          <span class="badge badge-gender">{{ product.gender }}</span>
+        </div>
+
+        <h1 class="product-detail-name">{{ product.name }}</h1>
+        <p class="product-detail-price">₹{{ product.price }}</p>
+        <p class="product-detail-description">{{ product.description }}</p>
+
+        <div class="product-attributes">
+          <div class="attr-item">
+            <span class="attr-label">Scent Notes</span>
+            <div class="scent-tags">
+              {% for note in product.scent_notes.split() %}
+              <span class="scent-tag">{{ note }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="attr-item">
+            <span class="attr-label">Occasion</span>
+            <span class="attr-value">{{ product.occasion }}</span>
+          </div>
+          <div class="attr-item">
+            <span class="attr-label">Season</span>
+            <span class="attr-value">{{ product.season }}</span>
+          </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('add_to_cart') }}" class="add-to-cart-form">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <input type="hidden" name="next" value="{{ url_for('product_detail', product_id=product.id) }}">
+          <div class="qty-cart-row">
+            <button type="submit" class="btn btn-large">Add to Cart</button>
+            <a href="{{ url_for('shop') }}" class="btn btn-outline">← Back to Shop</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    {% if recommendations %}
+    <div class="recommendations-section">
+      <h2 class="section-title">You May Also Like</h2>
+      <p class="section-subtitle">Curated picks based on similar scent profiles and notes</p>
+      <div class="product-grid reco-grid">
+        {% for rec in recommendations %}
+        <div class="product reco-card">
+          <a href="{{ url_for('product_detail', product_id=rec.id) }}" class="product-link">
+            <img src="{{ url_for('static', filename='images/' + rec.image) }}" alt="{{ rec.name }}">
+            <div class="product-info">
+              <span class="badge badge-category small">{{ rec.category }}</span>
+              <h3>{{ rec.name }}</h3>
+              <p>{{ rec.description[:80] }}…</p>
+              <span class="price">₹{{ rec.price }}</span>
+            </div>
+          </a>
+          <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ rec.id }}">
+            <input type="hidden" name="next" value="{{ url_for('product_detail', product_id=product.id) }}">
+            <button type="submit" class="btn btn-small-full">Add to Cart</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

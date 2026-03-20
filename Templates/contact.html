@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="contact-section">
+  <div class="contact-container">
+    <img src="{{ url_for('static', filename='images/contact-perfume.jpg') }}" alt="Contact Aroma Essence" class="contact-img">
+    <div class="contact-form">
+      <h1>Contact Us</h1>
+      <form method="POST">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="shop">
+  <div class="container">
+    <h1>Our Perfume Collection</h1>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <form method="GET" action="{{ url_for('shop') }}" class="filter-form">
+        <div class="filter-group">
+          <label>Category</label>
+          <select name="category" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if selected_category==cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Gender</label>
+          <select name="gender" onchange="this.form.submit()">
+            <option value="">All</option>
+            <option value="Men" {% if selected_gender=='Men' %}selected{% endif %}>Men</option>
+            <option value="Women" {% if selected_gender=='Women' %}selected{% endif %}>Women</option>
+            <option value="Unisex" {% if selected_gender=='Unisex' %}selected{% endif %}>Unisex</option>
+          </select>
+        </div>
+        {% if selected_category or selected_gender %}
+        <a href="{{ url_for('shop') }}" class="btn-small clear-filter">✕ Clear Filters</a>
+        {% endif %}
+      </form>
+
+      {% if query %}
+      <p class="search-result-info">Showing results for: <strong>"{{ query }}"</strong> — {{ products|length }} found
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Product Grid -->
+    {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+      <div class="product">
+        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-img-link">
+          <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        </a>
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="badge badge-category small">{{ product.category }}</span>
+            <span class="badge badge-gender small">{{ product.gender }}</span>
+          </div>
+          <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
+          <p>{{ product.description[:70] }}…</p>
+          <div class="mini-scent-notes">
+            {% for note in product.scent_notes.split()[:4] %}
+            <span class="scent-tag mini">{{ note }}</span>
+            {% endfor %}
+          </div>
+          <span class="price">₹{{ product.price }}</span>
+          <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No perfumes found. <a href="{{ url_for('shop') }}">Browse all →</a></p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="cart-section">
+  <div class="container">
+    <h1>Your Shopping Cart</h1>
+
+    {% if cart_items %}
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>₹{{ item.product.price }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('update_cart', cart_id=item.id) }}" style="display: flex; gap: 5px; justify-content: center;">
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" style="width: 60px; padding: 5px;">
+              <button type="submit" class="btn-small">Update</button>
+            </form>
+          </td>
+          <td>₹{{ item.product.price * item.quantity }}</td>
+          <td>
+            <a href="{{ url_for('remove_cart', cart_id=item.id) }}" class="btn-small" style="background-color: #ff4d4d;">Remove</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="cart-summary">
+      <h2 class="total">Grand Total: ₹{{ total }}</h2>
+      <a href="{{ url_for('checkout') }}" class="btn">Proceed to Checkout</a>
+      <a href="{{ url_for('shop') }}" style="display: block; margin-top: 15px; color: #666;">Continue Shopping</a>
+    </div>
+
+    {% else %}
+    <div class="empty-cart">
+      <p>Your cart is empty.</p>
+      <a href="{{ url_for('shop') }}" class="btn">Go to Shop</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

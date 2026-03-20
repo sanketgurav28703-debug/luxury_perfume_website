@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aroma Essence | {{ title or 'Luxury Perfumes' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2.0">
+</head>
+
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    USE CODE AROMA10 TO GET 10% OFF ON YOUR FIRST ORDER
+  </div>
+
+  <header class="main-header">
+    <div class="container navbar-container">
+
+      <!-- LEFT: Logo -->
+      <a href="{{ url_for('home') }}" class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Aroma Essence Logo">
+      </a>
+
+      <!-- CENTER: Flat Horizontal Links -->
+      <nav class="center-nav">
+        <a href="{{ url_for('shop') }}" class="{% if request.path == '/shop' and not request.args.get('category') %}active{% endif %}">SHOP</a>
+        <a href="{{ url_for('shop') }}?category=Fragrances" class="{% if request.args.get('category') == 'Fragrances' %}active{% endif %}">PERFUMES</a>
+        <a href="{{ url_for('shop') }}?category=Attar" class="{% if request.args.get('category') == 'Attar' %}active{% endif %}">ATTAR</a>
+        <a href="{{ url_for('shop') }}?category=Home+Fragrances" class="{% if request.args.get('category') == 'Home Fragrances' %}active{% endif %}">HOME FRAGRANCES</a>
+        
+        <div class="mega-dropdown">
+          <a href="{{ url_for('about') }}" class="mega-dropbtn {% if request.path == '/about' %}active{% endif %}">DISCOVER AROMA</a>
+          <div class="mega-dropdown-content">
+            <div class="mega-menu-grid">
+              <div class="mega-col">
+                <h4>ABOUT YOU</h4>
+                <a href="{{ url_for('rewards') }}">Rewards</a>
+                <a href="{{ url_for('reviews') }}">Reviews</a>
+              </div>
+              <div class="mega-col">
+                <h4>ABOUT US</h4>
+                <a href="{{ url_for('about') }}">Our Story</a>
+                <a href="{{ url_for('contact') }}">Contact Us</a>
+              </div>
+              <div class="mega-col">
+                <h4>INSPIRATION</h4>
+                <a href="{{ url_for('blog') }}">Blogs</a>
+              </div>
+              <div class="mega-col image-col">
+                <img src="{{ url_for('static', filename='images/summer_perfume.png') }}" alt="Summer Picks">
+              </div>
+              <div class="mega-col image-col">
+                <img src="{{ url_for('static', filename='images/attar_oud.png') }}" alt="Attar Making">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a href="{{ url_for('shop') }}?category=Gifting" class="{% if request.args.get('category') == 'Gifting' %}active{% endif %}">GIFTING</a>
+        <a href="{{ url_for('summer_collection') }}" class="{% if request.path == '/summer-collection' %}active{% endif %}">SUMMER PERFUMES</a>
+      </nav>
+
+      <!-- RIGHT: SVG Icons -->
+      <div class="right-controls">
+        <!-- User Icon -->
+        {% if session.get('user_name') %}
+        <a href="{{ url_for('logout') }}" class="icon-link" aria-label="Logout" title="Logout ({{ session.get('user_name') }})">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        {% else %}
+        <a href="#" onclick="openModal('loginModal')" class="icon-link" aria-label="Login">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        {% endif %}
+
+        <!-- Search Icon + Expandable Input -->
+        <form action="{{ url_for('search') }}" method="get" class="search-form-minimal">
+          <input class="search-expand-input" type="text" name="q" placeholder="Search" aria-label="Search">
+          <button type="submit" aria-label="Submit Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+        </form>
+
+        <!-- Cart Icon -->
+        <a href="#" onclick="event.preventDefault(); openCartDrawer();" class="icon-link cart-icon" aria-label="Cart">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-messages">
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ======================== FAT FOOTER ======================== -->
+  <footer class="fat-footer">
+
+    <div class="footer-top">
+      <div class="container footer-grid">
+
+        <!-- Col 1: Brand -->
+        <div class="footer-col footer-brand-col">
+          <div class="footer-logo">Aroma Essence</div>
+          <p class="footer-tagline">
+            Luxury perfumes crafted for those who appreciate the art of fragrance.
+            Discover your signature scent with us.
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-btn" aria-label="Instagram" title="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+              </svg>
+            </a>
+            <a href="#" class="social-btn" aria-label="Facebook" title="Facebook">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </a>
+            <a href="#" class="social-btn" aria-label="Pinterest" title="Pinterest">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+              </svg>
+            </a>
+            <a href="#" class="social-btn" aria-label="YouTube" title="YouTube">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Col 2: Collections -->
+        <div class="footer-col">
+          <h4 class="footer-heading">Collections</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('shop') }}">All Perfumes</a></li>
+            <li><a href="{{ url_for('shop') }}?category=Fragrances">Fragrances</a></li>
+            <li><a href="{{ url_for('shop') }}?category=Home+Fragrances">Home Fragrances</a></li>
+            <li><a href="{{ url_for('shop') }}?category=Attar">Attar</a></li>
+            <li><a href="{{ url_for('summer_collection') }}">Summer</a></li>
+            <li><a href="{{ url_for('shop') }}?category=Gifting">Gifting</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Quick Links -->
+        <div class="footer-col">
+          <h4 class="footer-heading">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+            <li><a href="{{ url_for('about') }}">Our Story</a></li>
+            <li><a href="{{ url_for('blog') }}">Blog</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Newsletter + Contact -->
+        <div class="footer-col footer-newsletter-col">
+          <h4 class="footer-heading">Stay Connected</h4>
+          <p class="footer-newsletter-text">
+            Get exclusive deals, new arrivals &amp; fragrance tips straight to your inbox.
+          </p>
+          <form class="footer-newsletter-form" onsubmit="handleNewsletterSignup(event)">
+            <input type="email" id="newsletter-email" placeholder="Your email address" aria-label="Email for newsletter"
+              required>
+            <button type="submit">Subscribe</button>
+          </form>
+
+          <div class="footer-contact-info">
+            <p><a href="mailto:hello@aromaessence.com">hello@aromaessence.com</a></p>
+            <p><a href="tel:+919876543210">+91 98765 43210</a></p>
+            <p>Mumbai, Maharashtra, India</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <p>&#169; 2026 <strong>Aroma Essence</strong>. All Rights Reserved. Crafted in India.</p>
+        <div class="footer-bottom-links">
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- CART DRAWER HTML -->
+  <div class="cart-overlay" onclick="closeCartDrawer()"></div>
+  <div id="cart-drawer" class="cart-drawer">
+      <div id="cart-drawer-content"></div>
+  </div>
+
+  {% include 'modals.html' %}
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>

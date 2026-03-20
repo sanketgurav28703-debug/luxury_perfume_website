@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="blog-header" style="background:#111; color:#fff; text-align:center; padding: 80px 20px;">
+    <h1 style="font-family:'Cormorant Garamond',serif; font-size:3em; margin-bottom:15px;">The Aroma Journal</h1>
+    <p style="font-size:1.1em; color:#ccc; max-width:600px; margin:0 auto; font-family:'Poppins',sans-serif;">
+        Discover the art of perfumery, scent pairing tips, and stories behind our most luxurious creations.
+    </p>
+</section>
+
+<section class="blog-grid-section" style="padding: 60px 20px; max-width: 1200px; margin: 0 auto;">
+    <div class="product-grid"
+        style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:40px;">
+
+        {% for post in posts %}
+        <article class="blog-card" style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.05); transition:transform 0.3s, box-shadow 0.3s;">
+            <div class="blog-img"
+                style="height:220px; background:#f5f5f5 url('{{ url_for('static', filename=post.image) }}') center/cover;">
+            </div>
+            <div class="blog-content" style="padding: 25px;">
+                <span
+                    style="font-size:0.75em; text-transform:uppercase; letter-spacing:1px; color:#ff7b89; font-weight:600;">{{ post.category }}</span>
+                <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6em; color:#222; margin:10px 0;">{{ post.title }}</h3>
+                <p style="color:#666; font-size:0.9em; line-height:1.6; margin-bottom:20px;">
+                    {{ post.description }}
+                </p>
+                <a href="{{ url_for('blog_post', post_id=post.id) }}" class="read-article-link" style="color:#111; font-weight:600; text-decoration:none; font-size:0.9em; display:inline-block;">Read Article
+                    &rarr;</a>
+            </div>
+        </article>
+        {% endfor %}
+
+    </div>
+</section>
+
+{% endblock %}
