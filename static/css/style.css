@@ -1915,6 +1915,76 @@ footer {
     margin-right: 40px !important;
 }
 
+/* Profile Dropdown */
+.profile-menu {
+    Asc  Asc position: relative;
+    cursor: pointer;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    width: 150px;
+}
+
+.dropdown a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown a:hover {
+    background: #f5f5f5;
+}
+
+.profile-menu:hover .dropdown {
+    display: block;
+}
+
+/* Timeline */
+.timeline {
+    display: Asc Asc flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.step {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #ddd;
+    font-size: 12px;
+}
+
+.step.done {
+    background: green;
+    color: white;
+}
+
+.step.active {
+    background: orange;
+    color: white;
+}
+
+/* Stats */
+.stats {
+    display: Asc Asc flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stats div {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+
 /* Ensure Hero Buttons on Homepage are highly visible */
 .hero-actions .btn {
     background-color: #fff;

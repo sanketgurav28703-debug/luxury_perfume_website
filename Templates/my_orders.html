@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 40px auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .price {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .meta {
+            margin-top: 10px;
+            color: #777;
+        }
+
+        .status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .dispatched {
+            background: #e2e3ff;
+            color: #383d7c;
+        }
+
+        .completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .bottom {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background: #0d1b2a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #1b263b;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>My Orders</h2>
+
+    {% if orders %}
+        {% for order in orders %}
+            <div class="order-card">
+
+                <div class="top">
+                    <div>
+                        <div class="product-name">{{ order.product_name }}</div>
+                        <div class="price">₹{{ order.total_price }} | Qty: {{ order.quantity }}</div>
+                    </div>
+
+                    <div class="status {{ order.status|lower }}">
+                        {{ order.status }}
+                    </div>
+                </div>
+
+                <div class="meta">
+                    📅 {{ order.date.strftime('%d %b %Y, %I:%M %p') }} <br>
+                    📍 {{ order.address }}
+                </div>
+
+                <div class="bottom">
+
+                    <span>Order ID: #{{ order.id }}</span>
+                    <a href="/track-order/{{ order.id }}" class="btn">Track</a>
+                    {% if order.status == 'Pending' %}
+                    <a href="/cancel-order/{{ order.id }}" class="btn" style="background:red;">Cancel</a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <p>No orders yet</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

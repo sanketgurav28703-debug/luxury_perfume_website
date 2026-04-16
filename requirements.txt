@@ -5,3 +5,4 @@ scikit-learn
 pandas
 numpy
 python-dotenv
+razorpay==1.4.2

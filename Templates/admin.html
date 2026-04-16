@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Admin Panel</h1>
+
+<a href="/admin/add">Add Product</a>
+
+<table border="1">
+<tr>
+  <th>Name</th>
+  <th>Price</th>
+</tr>
+
+{% for p in products %}
+<tr>
+  <td>{{ p.name }}</td>
+  <td>{{ p.price }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Product - Admin</title>
+</head>
+<body>
+  <h2>Edit Product</h2>
+  <form method="POST">
+    <input name="name" value="{{ product.name }}"><br>
+    <input name="price" value="{{ product.price }}"><br>
+    <button>Update</button>
+  </form>
+  <a href="/admin">← Back to Dashboard</a>
+</body>
+</html>

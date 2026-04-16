@@ -1,0 +1,48 @@
+/* STATUS BADGE */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* COLORS */
+.status-badge.Pending { background: #f39c12; }
+.status-badge.Confirmed { background: #3498db; }
+.status-badge.Processing { background: #8e44ad; }
+.status-badge.Dispatched { background: #16a085; }
+.status-badge.Completed { background: #27ae60; }
+.status-badge.Rejected { background: #e74c3c; }
+
+/* BUTTONS */
+.status-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: white;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+/* COLORS */
+.btn.confirm { background: #3498db; }
+.btn.process { background: #8e44ad; }
+.btn.dispatch { background: #16a085; }
+.btn.complete { background: #27ae60; }
+.btn.reject { background: #e74c3c; }
+
+/* HOVER FIX */
+.btn:hover {
+  opacity: 0.7 !important;
+  transform: scale(1.05);
+}

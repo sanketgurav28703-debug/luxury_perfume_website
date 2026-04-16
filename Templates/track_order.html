@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Order</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 60%;
+            margin: auto;
+        }
+
+        .step {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ccc;
+        }
+
+        .active {
+            border-left: 4px solid green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Track Order</h2>
+
+    <p><b>{{ order.product_name }}</b></p>
+    <p>Status: {{ order.status }}</p>
+
+    <div class="step {% if order.status in ['Pending','Processing','Dispatched','Completed'] %}active{% endif %}">
+        🟡 Pending
+    </div>
+
+    <div class="step {% if order.status in ['Processing','Dispatched','Completed'] %}active{% endif %}">
+        ⚙️ Processing
+    </div>
+
+    <div class="step {% if order.status in ['Dispatched','Completed'] %}active{% endif %}">
+        🚚 Dispatched
+    </div>
+
+    <div class="step {% if order.status == 'Completed' %}active{% endif %}">
+        ✅ Delivered
+    </div>
+
+</div>
+
+</body>
+</html>

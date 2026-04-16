@@ -1,0 +1,14 @@
+<h2>Manage Address</h2>
+
+<div class="container" style="max-width:600px;">
+    <form method="POST">
+        <div style="margin-bottom:20px;">
+            <label>Delivery Address:</label><br>
+            <textarea name="address" required style="width:100%;height:120px;font-family:monospace;border:1px solid #ddd;padding:10px;border-radius:8px;">
+{{ user.address or '' }}
+            </textarea>
+        </div>
+        <button type="submit" class="btn" style="padding:12px 24px;background:#333;color:white;border:none;border-radius:5px;">Save Address</button>
+    </form>
+</div>
+

@@ -3,17 +3,32 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from collections import Counter
+from werkzeug.utils import secure_filename
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from datetime import datetime
+import razorpay
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "aroma-essence-dev-key-2026")
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    if value:
+        return value.strftime('%d %b %Y, %I:%M %p')
+    return ""
 
 # ------------------- DATABASE SETUP -------------------
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///perfume.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+client = razorpay.Client(auth=("rzp_test_SZ6IDjdDLrKTl8", "BjkAPhzrjWbJc6t8egbXvjvy"))
+
+UPLOAD_FOLDER = 'static/images'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # ------------------- DATABASE MODELS -------------------
 class Product(db.Model):
@@ -34,6 +49,7 @@ class User(db.Model):
     name       = db.Column(db.String(100))
     email      = db.Column(db.String(100), unique=True)
     password   = db.Column(db.String(200))
+    is_admin   = db.Column(db.Boolean, default=False)
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
     views      = db.relationship('UserView', backref='user', lazy=True)
 
@@ -59,8 +75,16 @@ class UserView(db.Model):
 
 class Order(db.Model):
     """Tracks completed orders — used to check if a user is a first-time buyer."""
-    id      = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(db.Integer, db.ForeignKey('user.id'))
+    product_name = db.Column(db.String(200))
+    total_price  = db.Column(db.Float)
+    quantity     = db.Column(db.Integer)
+    address      = db.Column(db.String(300))
+    status       = db.Column(db.String(50), default="Pending")
+    date         = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User')
 
 # ------------------- INITIAL DATA -------------------
 with app.app_context():
@@ -157,6 +181,39 @@ with app.app_context():
                 scent_notes="oudh rose amber saffron musk traditional concentrated"
             ),
             Product(
+                name="Musk Amber Attar",
+                price=2800,
+                description="Warm amber blended with sensual musk.",
+                image="MuskAmberAttar.jpg",
+                category="Attar",
+                gender="Unisex",
+                occasion="Party",
+                season="Winter",
+                scent_notes="musk amber warm sweet"
+            ),
+            Product(
+                name="Rose Attar Classic",
+                price=2500,
+                description="Traditional rose attar from Kannauj.",
+                image="RoseAttarClassic.jpg",
+                category="Attar",
+                gender="Women",
+                occasion="Daily",
+                season="Spring",
+                scent_notes="rose floral sweet fresh"
+            ),
+            Product(
+                name="Sandalwood Attar",
+                price=3000,
+                description="Pure sandalwood oil with calming aroma.",
+                image="SandalwoodAttar.jpg",
+                category="Attar",
+                gender="Unisex",
+                occasion="Meditation",
+                season="All Seasons",
+                scent_notes="sandalwood creamy woody soft"
+            ),
+            Product(
                 name="Lavender Room Freshener", price=1299,
                 description="Transform your home into a tranquil spa with this premium room spray and fabric freshener.",
                 image="home_freshener.png",
@@ -172,6 +229,28 @@ with app.app_context():
                 season="All Seasons",
                 scent_notes="floral woody amber citrus variety gift set presentation"
             ),
+                Product(
+                name="Romantic Gift Set",
+                price=3000,
+                description="Perfect romantic fragrance combo for special moments.",
+                image="RomanticGiftSet.jpg",
+                category="Gifting",
+                gender="Women",
+                occasion="Valentine",
+                season="Winter",
+                scent_notes="rose vanilla sweet romantic"
+           ),
+                Product(
+                name="Men’s Executive Gift Kit",
+                price=3999,
+                description="Elegant fragrance kit for modern men.",
+                image="Men’sExecutiveGiftKit.jpg",
+                category="Gifting",
+                gender="Men",
+                occasion="Corporate",
+                season="All Seasons",
+                scent_notes="woody musk strong bold"
+        ),
             Product(
                 name="Aqua Sunshine", price=2199,
                 description="The ultimate summer escape. Bright citrus notes layered over a marine accord for hot, sunny days.",
@@ -528,8 +607,18 @@ def checkout():
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
     total      = sum(item.product.price * item.quantity for item in cart_items)
     if request.method == 'POST':
-        # Record the order for first-time coupon tracking
-        db.session.add(Order(user_id=user_id))
+        product_names = ", ".join([item.product.name for item in cart_items])
+        total_quantity = sum(item.quantity for item in cart_items)
+        address = request.form.get('address')
+        new_order = Order(
+            user_id=user_id,
+            product_name=product_names,
+            total_price=total,
+            quantity=total_quantity,
+            address=address
+        )
+        db.session.add(new_order)
+        # clear cart
         db.session.query(CartItem).filter_by(user_id=user_id).delete()
         db.session.commit()
         flash("Order placed successfully! Thank you for shopping with Aroma Essence.", "success")
@@ -623,5 +712,222 @@ def rewards():
 def reviews():
     return render_template('reviews.html')
 
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    user = User.query.get(session['user_id'])
+
+    if not user:
+        session.clear()
+        return redirect('/')
+
+    orders = Order.query.filter_by(user_id=user.id).all()
+
+    total_orders = len(orders)
+    total_spent = sum(o.total_price for o in orders)
+
+    return render_template("profile.html", user=user, orders=orders, total_orders=total_orders, total_spent=total_spent)
+
+
+
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        if email == "sanketgurav28703@gmail.com" and password == "2003":
+            session['admin'] = True
+            return redirect('/admin')
+        else:
+            return render_template('admin_login.html', error="Invalid login")
+
+    return render_template('admin_login.html')
+
+
+@app.route('/admin')
+def admin():
+    if not session.get('admin'):
+        return redirect('/admin/login')
+
+    search = request.args.get('search', '')
+
+    if search:
+        products = Product.query.filter(
+            Product.name.ilike(f'%{search}%')
+        ).all()
+    else:
+        products = Product.query.all()
+
+    users = User.query.all()
+
+    total_products = Product.query.count()
+    total_users = User.query.count()
+    total_orders = Order.query.count()
+
+    # Category data - SAFE VERSION
+    products_all = Product.query.all()
+    categories = [p.category if p.category else "Other" for p in products_all]
+    category_count = dict(Counter(categories))
+
+    return render_template('admin_dashboard.html', products=products, users=users,
+        total_products=total_products, total_users=total_users, total_orders=total_orders,
+        category_data=category_count)
+
+@app.route('/admin/add', methods=['GET', 'POST'])
+def add_product():
+    if request.method == 'POST':
+
+        file = request.files['image']
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        product = Product(
+            name=request.form['name'],
+            price=request.form['price'],
+            image=filename,
+            description=request.form['description'],
+            category=request.form['category']
+        )
+
+        db.session.add(product)
+        db.session.commit()
+
+        return redirect('/admin')
+
+    # ✅ THIS WAS MISSING
+    return render_template('add.html')
+
+
+@app.route('/admin/edit/<int:id>', methods=['GET', 'POST'])
+def edit_product(id):
+    product = Product.query.get(id)
+
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.price = request.form['price']
+        db.session.commit()
+        return redirect('/admin')
+
+    return render_template('edit.html', product=product)
+
+@app.route('/admin/delete/<int:id>')
+def delete_product(id):
+    product = Product.query.get(id)
+    db.session.delete(product)
+    db.session.commit()
+    return redirect('/admin')
+
+@app.route('/admin/orders')
+def admin_orders():
+    if not session.get('admin'):
+        return redirect('/admin/login')
+
+    orders = Order.query.join(User).all()
+    return render_template('admin_orders.html', orders=orders)
+
+
+
+@app.route('/admin/order-status/<int:id>/<status>')
+def update_order_status(id, status):
+    order = Order.query.get(id)
+    if order:
+        order.status = status
+        db.session.commit()
+    return redirect('/admin/orders')
+
+@app.route('/my-orders')
+def my_orders():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    orders = Order.query.filter_by(user_id=session['user_id']).all()
+    return render_template('my_orders.html', orders=orders)
+
+@app.route('/address', methods=['GET', 'POST'])
+def address():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        user.address = request.form['address']
+        db.session.commit()
+        return redirect('/profile')
+
+    return render_template("address.html", user=user)
+
+@app.route('/track-order/<int:order_id>')
+def track_order(order_id):
+    if 'user_id' not in session:
+        return redirect('/')
+
+    order = Order.query.get(order_id)
+    return render_template('track_order.html', order=order)
+
+@app.route('/cancel-order/<int:order_id>')
+def cancel_order(order_id):
+    order = Order.query.get(order_id)
+
+    if order and order.status == "Pending":
+        order.status = "Rejected"
+        db.session.commit()
+
+    return redirect('/my-orders')
+
+@app.route('/create-order', methods=['POST'])
+def create_order():
+    if 'user_id' not in session:
+        return {"error": "Login required"}, 401
+
+    user_id = session['user_id']
+    cart_items = CartItem.query.filter_by(user_id=user_id).all()
+
+    total = int(sum(item.product.price * item.quantity for item in cart_items) * 100)
+
+    order_data = client.order.create({
+        "amount": total,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+
+    return {
+        "id": order_data['id'],
+        "amount": order_data['amount']
+    }
+
+@app.route('/payment-success')
+def payment_success():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    user_id = session['user_id']
+    cart_items = CartItem.query.filter_by(user_id=user_id).all()
+
+    total = sum(item.product.price * item.quantity for item in cart_items)
+    product_names = ", ".join([item.product.name for item in cart_items])
+    quantity = sum(item.quantity for item in cart_items)
+
+    new_order = Order(
+        user_id=user_id,
+        product_name=product_names,
+        total_price=total,
+        quantity=quantity,
+        address="Saved Address",
+        status="Processing"
+    )
+
+    db.session.add(new_order)
+    db.session.query(CartItem).filter_by(user_id=user_id).delete()
+    db.session.commit()
+
+    return redirect('/my-orders')
+
 if __name__ == '__main__':
     app.run(debug=True)
+

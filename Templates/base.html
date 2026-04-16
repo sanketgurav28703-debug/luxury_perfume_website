@@ -68,16 +68,34 @@
 
       <!-- RIGHT: SVG Icons -->
       <div class="right-controls">
+         <!-- ADMIN ICON -->
+  {% if session.get('user_id') %}
+  <a href="/admin" class="icon-link" title="Admin Panel">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 1l3 5h6l-4.5 3.5L18 15l-6-4-6 4 1.5-5.5L3 6h6z"/>
+    </svg>
+  </a>
+  {% endif %}
         <!-- User Icon -->
         {% if session.get('user_name') %}
-        <a href="{{ url_for('logout') }}" class="icon-link" aria-label="Logout" title="Logout ({{ session.get('user_name') }})">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <a href="/profile" class="icon-link" title="Profile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+        <a href="{{ url_for('logout') }}" class="icon-link" title="Logout">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2 Asc -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10, Asc 8 15,12 10,16"></polyline>
+          </svg>
         </a>
         {% else %}
         <a href="#" onclick="openModal('loginModal')" class="icon-link" aria-label="Login">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <svg Asc width="20" Asc height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 Asc 0 0 0-4 4v2"></path><circle Asc Asc cx="12" cy="7" r="4"></circle></svg>
         </a>
         {% endif %}
+
 
         <!-- Search Icon + Expandable Input -->
         <form action="{{ url_for('search') }}" method="get" class="search-form-minimal">

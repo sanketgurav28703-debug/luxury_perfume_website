@@ -31,7 +31,8 @@
             <input type="text" placeholder="First Name" required class="chk-input">
             <input type="text" placeholder="Last Name" required class="chk-input">
           </div>
-          <input type="text" placeholder="Address" required class="chk-input">
+          <input type="text" name="address" placeholder="Enter your address" required class="chk-input" style="width:100%; padding:10px; margin:10px 0;">
+
           <input type="text" placeholder="Apartment, suite, etc. (optional)" class="chk-input">
           <div class="chk-row">
             <input type="text" placeholder="City" required class="chk-input">
@@ -72,9 +73,44 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary checkout-btn-large">Pay Now ₹{{ total }}</button>
+<button id="pay-btn" class="btn-primary checkout-btn-large">Pay Now</button>
       </form>
+
+      <!-- Razorpay Integration -->
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      <script>
+      document.getElementById("pay-btn").onclick = async function (e) {
+          e.preventDefault();
+
+          let res = await fetch("/create-order", {method: "POST"});
+          let data = await res.json();
+          if (data.error) {
+              alert(data.error);
+              return;
+          }
+
+          var options = {
+"key": "rzp_test_SZ6IDjdDLrKTl8",
+              "amount": data.amount,
+              "currency": "INR",
+              "name": "Aroma Essence",
+              "description": "Order Payment",
+              "order_id": data.id,
+              "handler": function (response){
+                  window.location.href = "/payment-success";
+              },
+              "prefill": {
+                  "name": "{{ session.get('user_name', '') }}",
+                  "email": "{{ session.get('user_email', '') }}"
+              }
+          };
+
+          var rzp = new Razorpay(options);
+          rzp.open();
+      };
+      </script>
     </div>
+
 
     <!-- RIGHT COLUMN: Order Summary -->
     <div class="checkout-summary-col">

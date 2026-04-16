@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding:30px;">
+
+  <h1>Orders</h1>
+
+  <table style="width:100%; background:white;">
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Products</th>
+      <th>Qty</th>
+      <th>Total</th>
+      <th>Address</th>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+
+    {% for o in orders %}
+    <tr>
+      <td>#{{ o.id }}</td>
+      <td>{{ o.user.name }}</td>
+      <td>{{ o.product_name }}</td>
+      <td>{{ o.quantity }}</td>
+      <td>₹{{ "%.2f"|format(o.total_price) }}</td>
+      <td>{{ o.address }}</td>
+      <td>{{ o.date.strftime('%d %b %Y') }}</td>
+      <td>
+        <span style="
+          padding:5px 10px;
+          border-radius:10px;
+          color:white;
+          background:
+          {% if o.status == 'Pending' %}orange
+          {% elif o.status == 'Confirmed' %}blue
+          {% elif o.status == 'Processing' %}purple
+          {% elif o.status == 'Dispatched' %}teal
+          {% elif o.status == 'Completed' %}green
+          {% elif o.status == 'Rejected' %}red
+          {% endif %}
+        ">
+          {{ o.status }}
+        </span>
+
+        <br><br>
+
+        <a href="/admin/order-status/{{ o.id }}/Confirmed" style="margin-right:5px;">✔ Confirm</a>
+        <a href="/admin/order-status/{{ o.id }}/Processing" style="margin-right:5px;">⚙ Process</a>
+        <a href="/admin/order-status/{{ o.id }}/Dispatched" style="margin-right:5px;">🚚 Dispatch</a>
+        <a href="/admin/order-status/{{ o.id }}/Completed" style="margin-right:5px;">✅ Complete</a>
+        <a href="/admin/order-status/{{ o.id }}/Rejected" style="color:red;">❌ Reject</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</div>
+{% endblock %}
